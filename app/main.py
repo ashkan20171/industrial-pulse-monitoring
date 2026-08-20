@@ -2,105 +2,61 @@
 IndustrialPulse Application Entry Point.
 
 Smart Industrial Monitoring & Predictive Maintenance Platform.
-
 Developed by Ashkan Motaei.
 Copyright (c) 2026 Ashkan Motaei.
 """
 
 import sys
 
-from PySide6.QtGui import QColor, QPalette
-from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QVBoxLayout, QWidget
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication
 
+from app.infrastructure.alerts_manager import AlertsManager
+from app.infrastructure.database import init_db
+from app.infrastructure.sensor_hub import SensorDataHub
+from app.presentation.main_window import MainWindow
+from app.presentation.styles.theme import apply_dark_theme
 
 APP_NAME = "IndustrialPulse"
-APP_VERSION = "0.1.0"
+APP_VERSION = "0.3.0"
 DEVELOPER_NAME = "Ashkan Motaei"
-
-
-class MainWindow(QMainWindow):
-    """Main application window for IndustrialPulse."""
-
-    def __init__(self) -> None:
-        super().__init__()
-
-        self.setWindowTitle(f"{APP_NAME} — Smart Industrial Monitoring")
-        self.setMinimumSize(1100, 700)
-
-        central_widget = QWidget()
-        layout = QVBoxLayout(central_widget)
-
-        title = QLabel(APP_NAME)
-        title.setObjectName("appTitle")
-
-        subtitle = QLabel("Smart Industrial Monitoring & Predictive Maintenance Platform")
-        subtitle.setObjectName("appSubtitle")
-
-        developer_label = QLabel(f"Developed by {DEVELOPER_NAME}")
-        developer_label.setObjectName("developerLabel")
-
-        layout.addStretch()
-        layout.addWidget(title)
-        layout.addWidget(subtitle)
-        layout.addSpacing(20)
-        layout.addWidget(developer_label)
-        layout.addStretch()
-
-        layout.setContentsMargins(60, 60, 60, 60)
-        self.setCentralWidget(central_widget)
-
-
-def apply_dark_theme(application: QApplication) -> None:
-    """Apply the initial dark industrial color palette."""
-
-    palette = QPalette()
-
-    palette.setColor(QPalette.ColorRole.Window, QColor("#101828"))
-    palette.setColor(QPalette.ColorRole.WindowText, QColor("#F9FAFB"))
-    palette.setColor(QPalette.ColorRole.Base, QColor("#1D2939"))
-    palette.setColor(QPalette.ColorRole.AlternateBase, QColor("#344054"))
-    palette.setColor(QPalette.ColorRole.Text, QColor("#F9FAFB"))
-    palette.setColor(QPalette.ColorRole.Button, QColor("#1D2939"))
-    palette.setColor(QPalette.ColorRole.ButtonText, QColor("#F9FAFB"))
-    palette.setColor(QPalette.ColorRole.Highlight, QColor("#2E90FA"))
-    palette.setColor(QPalette.ColorRole.HighlightedText, QColor("#FFFFFF"))
-
-    application.setPalette(palette)
-
-    application.setStyleSheet("""
-        QLabel#appTitle {
-            color: #F9FAFB;
-            font-size: 42px;
-            font-weight: 700;
-        }
-
-        QLabel#appSubtitle {
-            color: #98A2B3;
-            font-size: 18px;
-        }
-
-        QLabel#developerLabel {
-            color: #2E90FA;
-            font-size: 15px;
-            font-weight: 600;
-        }
-    """)
 
 
 def main() -> None:
     """Start the IndustrialPulse application."""
+    # 1. Initialize SQLite Database & Seed Default Data
+    init_db()
 
     app = QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
     app.setApplicationVersion(APP_VERSION)
     app.setOrganizationName(DEVELOPER_NAME)
 
+    # 2. Apply Custom Industrial Dark Theme
     apply_dark_theme(app)
 
-    window = MainWindow()
+    # 3. Instantiate Shared Core Infrastructure (Singletons)
+    alerts_manager = AlertsManager()
+    sensor_hub = SensorDataHub()
+
+    # 4. Wire Telemetry Alerts with Queued Connection (Thread-safe DB writing)
+    sensor_hub.alert_generated.connect(
+        alerts_manager.save_alert_to_db,
+        Qt.ConnectionType.QueuedConnection,
+    )
+
+    # 5. Inject dependencies into UI Shell
+    window = MainWindow(sensor_hub=sensor_hub, alerts_manager=alerts_manager)
     window.show()
 
-    sys.exit(app.exec())
+    # 6. Start telemetry simulator loop
+    sensor_hub.start()
+
+    exit_code = app.exec()
+
+    # 7. Safe Resource Cleanup on Application Exit
+    sensor_hub.stop()
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":
