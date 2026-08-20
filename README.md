@@ -1,44 +1,84 @@
-# IndustrialPulse
+# IndustrialPulse Monitoring
 
-> Smart Industrial Monitoring & Predictive Maintenance Platform
+A modern industrial desktop monitoring platform built with **Python**, **PySide6**, **SQLAlchemy**, and **SQLite**.  
+IndustrialPulse is designed for **real-time telemetry visualization**, **alert management**, and **predictive maintenance workflows** with a focus on **responsive UI**, **thread-safe data handling**, and **clean architecture**.
 
-IndustrialPulse is a modern cross-platform desktop application for monitoring industrial equipment, analyzing sensor data, managing maintenance workflows, and detecting operational anomalies.
+---
 
-![Status](https://img.shields.io/badge/status-in%20development-F79009)
-![Python](https://img.shields.io/badge/Python-3.12%2B-3776AB)
-![UI](https://img.shields.io/badge/UI-PySide6-41CD52)
-![License](https://img.shields.io/badge/license-MIT-blue)
+## Overview
+
+IndustrialPulse is a cross-platform desktop application for industrial operations monitoring.  
+It simulates and processes telemetry data, detects critical conditions, generates alerts, and automatically creates maintenance work orders when high-severity events occur.
+
+The project was developed with a strong focus on:
+
+- maintainable architecture
+- non-blocking user interface
+- thread-safe database access
+- scalable UI composition
+- professional desktop software standards
+
+---
 
 ## Key Features
 
-- Real-time industrial equipment monitoring
-- Sensor data simulation and visualization
-- Smart alert management
-- Maintenance work-order workflow
-- Equipment health scoring
-- Anomaly detection and predictive maintenance foundation
-- Modern dark industrial user interface
-- Modular and clean architecture
+### Real-Time Monitoring
+- Live industrial telemetry simulation
+- Continuous sensor data processing
+- Dashboard-style operational overview
+
+### Alert Management
+- Severity-based alerts: Low, Medium, High, Critical
+- Acknowledgment workflow
+- Color-coded UI feedback
+- Filterable alerts table
+
+### Predictive Maintenance
+- Automatic Work Order generation from critical alerts
+- Duplicate prevention for active alert-driven work orders
+- Work order lifecycle tracking
+
+### Responsive Desktop Architecture
+- Multi-threaded background processing
+- `QThread`-based sensor simulation
+- `QueuedConnection` for safe cross-thread DB updates
+- UI update optimization to avoid freezes
+
+### Professional UI
+- Custom dark theme
+- Modern Qt-based layout
+- Clear navigation structure
+- Developer-friendly and recruiter-friendly design
+
+---
 
 ## Technology Stack
 
-- **Language:** Python
-- **Desktop UI:** PySide6 / Qt
-- **Data Visualization:** PyQtGraph
-- **Database:** SQLite, SQLAlchemy
-- **Analytics:** Pandas, Scikit-learn
-- **Testing:** Pytest
-- **Packaging:** PyInstaller
+- **Python 3.10+**
+- **PySide6 / Qt**
+- **SQLAlchemy**
+- **SQLite**
+- **PyInstaller**
+- Optional: `pandas`, `numpy`, `scikit-learn` for future analytics and anomaly detection
+
+---
 
 ## Architecture
 
-The project follows a modular architecture inspired by Clean Architecture principles:
+IndustrialPulse follows a modular desktop application structure:
 ```text
 app/
-├── presentation/      # UI, pages, and reusable widgets
-├── domain/            # Core business entities and rules
-├── application/       # Application use cases
-├── infrastructure/    # Database, external services, IoT integrations
-├── analytics/         # Data analysis and machine-learning modules
-└── shared/            # Shared utilities and configuration
-"# industrial-pulse-monitoring" 
+├── infrastructure/
+│   ├── database.py
+│   ├── alerts_manager.py
+│   └── sensor_hub.py
+├── presentation/
+│   ├── main_window.py
+│   ├── pages/
+│   │   ├── dashboard_page.py
+│   │   ├── alerts_page.py
+│   │   ├── work_orders_page.py
+│   │   └── monitoring_page.py
+│   └── styles/
+│       └── theme.py
+└── main.py
