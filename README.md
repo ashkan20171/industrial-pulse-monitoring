@@ -41,3 +41,4 @@ app/
 ├── infrastructure/    # Database, external services, IoT integrations
 ├── analytics/         # Data analysis and machine-learning modules
 └── shared/            # Shared utilities and configuration
+"# industrial-pulse-monitoring" 
